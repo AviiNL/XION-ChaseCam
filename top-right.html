@@ -127,21 +127,7 @@
 </body>
 
 <script>
-    const beeper = document.getElementById("beep");
-    beeper.volume = beeper_volume;
-
-    var d, h, m, s, animate;
     const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-
-    function init() {
-        d = new Date();
-        h = d.getHours();
-        m = d.getMinutes();
-        s = d.getSeconds();
-        t = d.toLocaleString('en', { timeZoneName: 'short' }).split(' ').pop();
-        clock();
-        updateDate();
-    };
 
     const elem_sec = document.getElementById("sec");
     const elem_min = document.getElementById("min");
@@ -154,51 +140,42 @@
     const elem_agency = document.getElementById("agency");
     const elem_callsign = document.getElementById("callsign");
 
-    function clock() {
-        s++;
-        if (s == 60) {
-            s = 0;
-            m++;
-            if (m == 60) {
-                m = 0;
-                h++;
-                if (h == 24) {
-                    h = 0;
-                    updateDate();
-                }
-            }
-        }
+    const beeper = document.getElementById("beep");
+    beeper.volume = beeper_volume;
 
-        elem_sec.innerHTML = s;
-        elem_min.innerHTML = m;
-        elem_hr.innerHTML = h;
-        elem_tz.innerHTML = t;
-        elem_day.innerHTML = day;
-        elem_year.innerHTML = year;
-        elem_month.innerHTML = monthNames[month];
-        elem_player.innerHTML = player;
-        elem_agency.innerHTML = agency;
-        elem_callsign.innerHTML = callsign;
-        animate = setTimeout(clock, 1000);
-    };
+    // Assing contants to elements
+    elem_player.innerHTML = player;
+    elem_agency.innerHTML = agency;
+    elem_callsign.innerHTML = callsign;
+    elem_tz.innerHTML = (new Date()).toLocaleString('en', { timeZoneName: 'short' }).split(' ').pop();
 
-    function updateDate() {
-        day = d.getDate();
-        month = d.getMonth();
-        year = d.getFullYear();
-    };
+    // Loop function
+    function tick() {
+        const current_date = new Date();
+
+        elem_sec.innerHTML = current_date.getSeconds().toString().padStart(2, '0');
+        elem_min.innerHTML = current_date.getMinutes().toString().padStart(2, '0');
+        elem_hr.innerHTML = current_date.getHours().toString().padStart(2, '0');
+
+        elem_day.innerHTML = current_date.getDate();
+        elem_month.innerHTML = monthNames[current_date.getMonth()];
+        elem_year.innerHTML = current_date.getFullYear();
+
+        setTimeout(tick, 100);
+    }
+
+    tick();
 
     function play_sound() {
         beeper.play();
+        setTimeout(play_sound, beeper_repeat_seconds * 1000);
     }
 
     play_sound();
 
-    setInterval(() => {
-        play_sound();
-    }, beeper_repeat_seconds * 1000);
-
-    window.onload = init;
+    if (window.obsstudio !== undefined) {
+        window.obsstudio.startReplayBuffer();
+    }
 </script>
 
 </html>
